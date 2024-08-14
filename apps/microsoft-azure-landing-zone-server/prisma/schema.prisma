@@ -1,0 +1,99 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model VirtualNetwork {
+  addressSpace              Json?
+  createdAt                 DateTime                   @default(now())
+  id                        String                     @id @default(cuid())
+  name                      String?
+  region                    String?
+  securityOperationsCenters SecurityOperationsCenter[]
+  updatedAt                 DateTime                   @updatedAt
+  virtualDesktops           VirtualDesktop[]
+}
+
+model VirtualDesktop {
+  createdAt        DateTime                  @default(now())
+  id               String                    @id @default(cuid())
+  name             String?
+  osType           EnumVirtualDesktopOsType?
+  updatedAt        DateTime                  @updatedAt
+  virtualNetwork   VirtualNetwork?           @relation(fields: [virtualNetworkId], references: [id])
+  virtualNetworkId String?
+}
+
+model SecurityOperationsCenter {
+  createdAt        DateTime                                      @default(now())
+  id               String                                        @id @default(cuid())
+  monitoringTools  EnumSecurityOperationsCenterMonitoringTools[]
+  name             String?
+  updatedAt        DateTime                                      @updatedAt
+  virtualNetwork   VirtualNetwork?                               @relation(fields: [virtualNetworkId], references: [id])
+  virtualNetworkId String?
+}
+
+model Policy {
+  createdAt DateTime            @default(now())
+  id        String              @id @default(cuid())
+  name      String?
+  rbacType  EnumPolicyRbacType?
+  updatedAt DateTime            @updatedAt
+}
+
+model Database {
+  createdAt        DateTime            @default(now())
+  dbType           EnumDatabaseDbType?
+  id               String              @id @default(cuid())
+  name             String?
+  storageAccount   StorageAccount?     @relation(fields: [storageAccountId], references: [id])
+  storageAccountId String?
+  updatedAt        DateTime            @updatedAt
+}
+
+model StorageAccount {
+  accountType EnumStorageAccountAccountType?
+  createdAt   DateTime                       @default(now())
+  databases   Database[]
+  id          String                         @id @default(cuid())
+  name        String?
+  region      String?
+  updatedAt   DateTime                       @updatedAt
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+enum EnumVirtualDesktopOsType {
+  Option1
+}
+
+enum EnumSecurityOperationsCenterMonitoringTools {
+  Option1
+}
+
+enum EnumPolicyRbacType {
+  Option1
+}
+
+enum EnumDatabaseDbType {
+  Option1
+}
+
+enum EnumStorageAccountAccountType {
+  Option1
+}
